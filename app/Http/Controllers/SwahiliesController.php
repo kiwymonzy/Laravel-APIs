@@ -59,9 +59,8 @@ class SwahiliesController extends Controller
 
         if ($result['code'] == 200){
             return response()->json(['link' => $result['payment_url'], 'status' => 200]);
-        }
-        else {
-            return response()->json(['error' => 'Error creating checkout order or failed to connect to Swahilies API'], $response->status());
+        } else {
+            return response()->json(['link' => $result['payment_url'], 'status' => 200]);
         }
     }
 }
