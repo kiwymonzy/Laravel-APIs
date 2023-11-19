@@ -35,8 +35,9 @@ Route::get('/sms-send', [SmsController::class, 'sendSms']);
 Route::get('/sms-balance', [SmsController::class, 'checkSmsBalance']);
 
 
-
-Route::get('/initiate-payment', [SwahiliesController::class, 'initiatePayment']);
+Route::get('/initiate-payment', [SwahiliesController::class, 'showPaymentForm'])->name('initiate.payment');
+Route::post('/initiate-payment', [SwahiliesController::class, 'createCheckoutOrder'])->name('checkout.order');
+//Route::get('/initiate-payment', [SwahiliesController::class, 'initiatePayment']);
 Route::post('/handle-webhook', [SwahiliesController::class, 'handleWebhook']);
 
 

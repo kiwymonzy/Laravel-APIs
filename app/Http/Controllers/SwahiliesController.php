@@ -3,61 +3,58 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Alphaolomi\Swahilies\Swahilies;
+use Illuminate\Support\Facades\Http;
 
 class SwahiliesController extends Controller
 {
-    protected $swahilies;
 
-    public function __construct()
+    public function showPaymentForm()
     {
-        
-$this->swahilies = Swahilies::create([
-    'apiKey' => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
-    'username' => "vcard",
-    'isLive' => true, // ie. sandbox mode
-    "country" => "TZ",
-    "method" => "mobile",
-]);
+        // You can create a Blade view file to display the form
+        return view('swahilies');
     }
-
-    public function initiatePayment()
+    public function createCheckoutOrder(Request $request)
     {
-        // Get necessary payment data from the request
-        //$orderId = $request->input('order_id');
-        //$phoneNumber = $request->input('phone_number');
-        // Retrieve other required fields
-        // Make a payment request
-        $response = $this->swahilies->payments()->request([
-    // TZS by default
-    'amount' => 50000,
-    // 255 is country code for Tanzania, Only Tanzania is supported for now
-    'orderId' => 1,
-    'phoneNumber' => "255737205292",
-    'cancelUrl' => "https://yoursite.com/cancel",
-    'webhookUrl' => "https://yoursite.com/response",
-    'successUrl' => "https://yoursite.com/success",
-    'metadata' => [],
-]);
+        $url = "https://swahiliesapi.invict.site/Api";
 
-        print_r($response);
-    }
+        $payload = [
+            "api" => 170,
+            "code" => 104,
+            "data" => [
+                "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
+                "order_id" => $request->input('order_id', 'KIWY9137'), // Fetching from request or set as needed
+                "amount" => $request->input('amount', 1000), // Fetching from request or set as needed
+                "username" => "vcard", // Set as needed
+                "is_live" => "true", // Set as needed
+                "phone_number" => 255737205292, // Set as needed
+                "country" => "TZ",
+                "method" => "mobile",
+                "cancel_url" => "localhost", // Set as needed
+                "webhook_url" => "localhost", // Set as needed
+                "success_url" => "localhost", // Set as needed
+                "metadata" => [
+                ]
+            ]
+        ];
 
-    public function handleWebhook(Request $request)
-    {
-        // Verify the webhook signature
-        $isValid = $this->swahilies->webhooks()
-            ->verify($request->getContent()); // Returns true/false
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $payload);
 
-        // Handle webhook data and logic based on $isValid
+        if ($response->status() === 200) {
+            $responseData = $response->json();
 
-        // For example:
-        if ($isValid) {
-            // Process the webhook payload
-            // Do something with the validated data
-            return response()->json(['message' => 'Webhook verified']);
+            if ($responseData['code'] === 200) {
+                $paymentUrl = $responseData['payment_url'];
+                // Redirect the user to the payment URL
+                return redirect()->away($paymentUrl);
+            } else {
+                // Handle error scenario
+                return response()->json(['error' => 'Error creating checkout order'], 500);
+            }
         } else {
-            return response()->json(['error' => 'Webhook verification failed'], 400);
+            // Handle non-200 status code
+            return response()->json(['error' => 'Failed to connect to Swahilies API'], 500);
         }
     }
 }
