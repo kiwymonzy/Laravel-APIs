@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Alphaolomi\Swahilies\Swahilies;
+
 
 class SwahiliesController extends Controller
 {
@@ -16,51 +18,37 @@ class SwahiliesController extends Controller
 
     public function createCheckoutOrder(Request $request)
     {
-        $sw_url = "https://swahiliesapi.invict.site/Api";
-        $payload = [
-            "api" => 170,
-            "code" => 101,
-            "data" => [
-                "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
-                "amount" => 50000,
-                "username" => "vcards",
-                "phone_number" => 255737205292,
-                "country" => "TZ",
-                "method" => "mobile",
-                "metadata" => [
-                    "anykey" => "anyvalue",
-                    "another_anyKey" => "another_anyvalue"
-                ],
-            ]
-        ];
+        $swahilies = new Swahilies([]);
+        // Or
+        $swahilies = Swahilies::create([
+            'apiKey' => 'OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=',
+            'username' => 'vcard',
+            'isLive' => false, // ie. sandbox mode
+        ]);
+        
+        $response = $swahilies->payments()->request([
+            // TZS by default
+            'amount' => 50000,
+            // 255 is country code for Tanzania, Only Tanzania is supported for now
+            'orderId' => "kiwy9137",
+            'phoneNumber' => "255737205292",
+            'cancelUrl' => "https://yoursite.com/cancel",
+            'webhookUrl' => "https://yoursite.com/response",
+            'successUrl' => "https://yoursite.com/success",
+            'metadata' => [],
+        ]);
 
+        print_r($response);
+        
+        // Output:
+        // [
+        //     "payment_url" => "https://swahiliespay.invict.site/make-payment-1.html?order=jdhvjadmvjehrve"
+        // ]
 
-            $dataString = json_encode($payload);
-
-            $headers = [
-                'Content-Type: application/json',
-            ];
-
-
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, $sw_url);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
-
-            $result = @curl_exec($ch);
-            $result = json_decode($result, true);
-            if (curl_errno($ch)) {
-                die("Swahilies connection error. err:" . curl_error($ch));
-            }
-            curl_close($ch); 
-
-        if ($result['code'] == 200){
-            return response()->json(['link' => $result['payment_url'], 'status' => 200]);
-        } else {
-            return response()->json(['Error' => 'Failed', 'status' => 300]);
-        }
+        //if ($response['code'] == 200) {
+        //    return response()->json(['link' => $response, 'status' => 200]);
+        //} else {
+        //    return response()->json(['Error' => 'Failed', 'status' => 300]);
+        //}
     }
 }
