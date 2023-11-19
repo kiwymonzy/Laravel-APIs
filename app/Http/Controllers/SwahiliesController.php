@@ -20,16 +20,18 @@ class SwahiliesController extends Controller
 
     $data_to_swahilies = [
         "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
-        "order_id" => $request->input('order_id', 'default_order_id'),
-        "amount" => $request->input('amount', 0),
+        //"order_id" => $request->input('order_id', ''), // Fetching from request or set as needed
+        //"amount" => $request->input('amount', 0), // Fetching from request or set as needed
+        "order_id":"sdvhdvdvjhv",
+        "amount":50000,
         "username" => "vcard",
         "country" => "TZ",
         "method" => "mobile",
-        "is_live" => false,
-        "phone_number" => 255737205292,
-        "cancel_url" => "https://www.yoursite.com/cancel",
-        "webhook_url" => "https://www.yoursite.com/response",
-        "success_url" => "https://www.yoursite.com/success",
+        "is_live" => false, // Set as needed
+        "phone_number" => 255737205292, // Set as needed
+        "cancel_url" => "https://www.yoursite.com/cancel", // Set as needed
+        "webhook_url" => "https://www.yoursite.com/response", // Set as needed
+        "success_url" => "https://www.yoursite.com/success", // Set as needed
     ];
 
     $info = [
