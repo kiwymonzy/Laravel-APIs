@@ -60,7 +60,7 @@ class SwahiliesController extends Controller
         if ($result['code'] == 200){
             return response()->json(['link' => $result['payment_url'], 'status' => 200]);
         } else {
-            return response()->json(['link' => $result['payment_url'], 'status' => 200]);
+            return response()->json(['Error' => 'Failed', 'status' => 300]);
         }
     }
 }
