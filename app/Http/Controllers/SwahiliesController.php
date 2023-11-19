@@ -16,46 +16,52 @@ class SwahiliesController extends Controller
 
     public function createCheckoutOrder(Request $request)
     {
-    $sw_url = "https://swahiliesapi.invict.site/Api";
+        $sw_url = "https://swahiliesapi.invict.site/Api";
+        $payload = [
+            "api" => 170,
+            "code" => 101,
+            "data" => [
+                "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
+                "amount" => 50000,
+                "username" => "vcards",
+                "phone_number" => 255737205292,
+                "country" => "TZ",
+                "method" => "mobile",
+                "metadata" => [
+                    "anykey" => "anyvalue",
+                    "another_anyKey" => "another_anyvalue"
+                ],
+            ]
+        ];
 
-    $data_to_swahilies = [
-        "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
-        //"order_id" => $request->input('order_id', ''), // Fetching from request or set as needed
-        //"amount" => $request->input('amount', 0), // Fetching from request or set as needed
-        "order_id":"sdvhdvdvjhv",
-        "amount":50000,
-        "username" => "vcard",
-        "country" => "TZ",
-        "method" => "mobile",
-        "is_live" => false, // Set as needed
-        "phone_number" => 255737205292, // Set as needed
-        "cancel_url" => "https://www.yoursite.com/cancel", // Set as needed
-        "webhook_url" => "https://www.yoursite.com/response", // Set as needed
-        "success_url" => "https://www.yoursite.com/success", // Set as needed
-    ];
 
-    $info = [
-        "api" => 170,
-        "code" => 104,
-        "data" => $data_to_swahilies
-    ];
+            $dataString = json_encode($payload);
 
-    $response = Http::withHeaders([
-        'Content-Type' => 'application/json',
-    ])->post($sw_url, $info);
+            $headers = [
+                'Content-Type: application/json',
+            ];
 
-    if ($response->successful()) {
-        $result = $response->json();
-        if (isset($result['code']) && $result['code'] === 200 && isset($result['payment_url'])) {
-            $paymentUrl = $result['payment_url'];
-            // Redirect the user to the payment URL
-            return redirect()->away($paymentUrl);
-        } else {
-            return response()->json(['error' => 'Invalid response format from Swahilies API'], $response->status());
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $sw_url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+
+            $result = @curl_exec($ch);
+            $result = json_decode($result, true);
+            if (curl_errno($ch)) {
+                die("Swahilies connection error. err:" . curl_error($ch));
+            }
+            curl_close($ch); 
+
+        if ($result['code'] == 200){
+            return response()->json(['link' => $result['payment_url'], 'status' => 200]);
         }
-    } else {
-        return response()->json(['error' => 'Error creating checkout order or failed to connect to Swahilies API'], $response->status());
+        else {
+            return response()->json(['error' => 'Error creating checkout order or failed to connect to Swahilies API'], $response->status());
+        }
     }
-
-}
 }
