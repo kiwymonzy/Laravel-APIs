@@ -15,7 +15,7 @@ class SwahiliesController extends Controller
     }
 
     public function createCheckoutOrder(Request $request)
-{
+    {
     $sw_url = "https://swahiliesapi.invict.site/Api";
 
     $data_to_swahilies = [
@@ -54,4 +54,6 @@ class SwahiliesController extends Controller
     } else {
         return response()->json(['error' => 'Error creating checkout order or failed to connect to Swahilies API'], $response->status());
     }
+
+}
 }
