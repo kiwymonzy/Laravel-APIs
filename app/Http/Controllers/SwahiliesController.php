@@ -27,11 +27,10 @@ class SwahiliesController extends Controller
         ]);
         
         $response = $swahilies->payments()->request([
-            // TZS by default
             'amount' => 50000,
             // 255 is country code for Tanzania, Only Tanzania is supported for now
-            'orderId' => "kiwy9137",
-            'phoneNumber' => "255737205292",
+            'orderId' => $order->id,
+            'phoneNumber' => "255783262616",
             'cancelUrl' => "https://yoursite.com/cancel",
             'webhookUrl' => "https://yoursite.com/response",
             'successUrl' => "https://yoursite.com/success",
