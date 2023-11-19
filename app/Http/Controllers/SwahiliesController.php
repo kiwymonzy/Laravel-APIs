@@ -13,48 +13,45 @@ class SwahiliesController extends Controller
         // You can create a Blade view file to display the form
         return view('swahilies');
     }
+
     public function createCheckoutOrder(Request $request)
-    {
-        $url = "https://swahiliesapi.invict.site/Api";
+{
+    $sw_url = "https://swahiliesapi.invict.site/Api";
 
-        $payload = [
-            "api" => 170,
-            "code" => 104,
-            "data" => [
-                "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
-                "order_id" => $request->input('order_id', 'KIWY9137'), // Fetching from request or set as needed
-                "amount" => $request->input('amount', 1000), // Fetching from request or set as needed
-                "username" => "vcard", // Set as needed
-                "is_live" => "true", // Set as needed
-                "phone_number" => 255737205292, // Set as needed
-                "country" => "TZ",
-                "method" => "mobile",
-                "cancel_url" => "localhost", // Set as needed
-                "webhook_url" => "localhost", // Set as needed
-                "success_url" => "localhost", // Set as needed
-                "metadata" => [
-                ]
-            ]
-        ];
+    $data_to_swahilies = [
+        "api_key" => "OWMzN2M1ZGVjMzQzNGIwY2EwNmM2NWMzZTE1YjQ3ZWY=",
+        "order_id" => $request->input('order_id', 'default_order_id'),
+        "amount" => $request->input('amount', 0),
+        "username" => "vcard",
+        "country" => "TZ",
+        "method" => "mobile",
+        "is_live" => false,
+        "phone_number" => 255737205292,
+        "cancel_url" => "https://www.yoursite.com/cancel",
+        "webhook_url" => "https://www.yoursite.com/response",
+        "success_url" => "https://www.yoursite.com/success",
+    ];
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post($url, $payload);
+    $info = [
+        "api" => 170,
+        "code" => 104,
+        "data" => $data_to_swahilies
+    ];
 
-        if ($response->status() === 200) {
-            $responseData = $response->json();
+    $response = Http::withHeaders([
+        'Content-Type' => 'application/json',
+    ])->post($sw_url, $info);
 
-            if ($responseData['code'] === 200) {
-                $paymentUrl = $responseData['payment_url'];
-                // Redirect the user to the payment URL
-                return redirect()->away($paymentUrl);
-            } else {
-                // Handle error scenario
-                return response()->json(['error' => 'Error creating checkout order'], 500);
-            }
+    if ($response->successful()) {
+        $result = $response->json();
+        if (isset($result['code']) && $result['code'] === 200 && isset($result['payment_url'])) {
+            $paymentUrl = $result['payment_url'];
+            // Redirect the user to the payment URL
+            return redirect()->away($paymentUrl);
         } else {
-            // Handle non-200 status code
-            return response()->json(['error' => 'Failed to connect to Swahilies API'], 500);
+            return response()->json(['error' => 'Invalid response format from Swahilies API'], $response->status());
         }
+    } else {
+        return response()->json(['error' => 'Error creating checkout order or failed to connect to Swahilies API'], $response->status());
     }
 }
