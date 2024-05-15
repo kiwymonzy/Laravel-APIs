@@ -18,6 +18,7 @@ class SwahiliesController extends Controller
 
     public function createCheckoutOrder(Request $request)
     {
+        //return $request->amount;
         $swahilies = new Swahilies([]);
         // Or
         $swahilies = Swahilies::create([
@@ -27,9 +28,9 @@ class SwahiliesController extends Controller
         ]);
         
         $response = $swahilies->payments()->request([
-            'amount' => 50000,
+            'amount' => $request->amount,
             // 255 is country code for Tanzania, Only Tanzania is supported for now
-            'orderId' => $order->id,
+            'orderId' => $request->order_id,
             'phoneNumber' => "255783262616",
             'cancelUrl' => "https://yoursite.com/cancel",
             'webhookUrl' => "https://yoursite.com/response",
