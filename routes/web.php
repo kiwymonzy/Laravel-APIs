@@ -9,27 +9,39 @@ use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
+
+//FAST VIEW
 Route::get('/', function () {
     return view('welcome');
 });
 
+
+//AFTR REGISTERING 
 Route::get('/home', function () {
     $users = User::all();
     return view('home', compact('users'));
 })->middleware(['auth', 'verified'])->name('home');
 
 
+//AZAM
+Route::get('/payment', [AzamPaymentController::class, 'initiateMobileCheckout']);
+
+
+//BEEM AFRICA
+Route::get('/sms-send', [SmsController::class, 'sendSms']);
+Route::get('/sms-balance', [SmsController::class, 'checkSmsBalance']);
+Route::get('/sms-balance', [SmsController::class, 'checkSmsBalance'])->name('sms-balance');
+
+
+//SWAHILIES
+Route::get('/initiate-payment', [SwahiliesController::class, 'showPaymentForm'])->name('initiate.payment');
+Route::post('/initiate-payment', [SwahiliesController::class, 'createCheckoutOrder'])->name('checkout.order');
+Route::get('/initiate-payment', [SwahiliesController::class, 'initiatePayment']);
+Route::post('/handle-webhook', [SwahiliesController::class, 'handleWebhook']);
+
+
+//AUTH ADMIN
 Route::middleware('auth')->group(function () {
     Route::resource('projects', ProjectController::class);
     Route::get('/projects/{projectId}', [ProjectController::class, 'redirectToSearch'])->where('projectId', '[0-9]+');
@@ -39,18 +51,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-Route::get('/payment', [AzamPaymentController::class, 'initiateMobileCheckout']);
-Route::get('/sms-send', [SmsController::class, 'sendSms']);
-Route::get('/sms-balance', [SmsController::class, 'checkSmsBalance']);
-Route::get('/sms-balance', [SmsController::class, 'checkSmsBalance'])->name('sms-balance');
-
-
-
-Route::get('/initiate-payment', [SwahiliesController::class, 'showPaymentForm'])->name('initiate.payment');
-Route::post('/initiate-payment', [SwahiliesController::class, 'createCheckoutOrder'])->name('checkout.order');
-//Route::get('/initiate-payment', [SwahiliesController::class, 'initiatePayment']);
-Route::post('/handle-webhook', [SwahiliesController::class, 'handleWebhook']);
 
 
 require __DIR__.'/auth.php';
