@@ -17,12 +17,13 @@ Route::get('/', function () {
 });
 
 
-//AFTR REGISTERING 
+//AFTER REGISTERING 
 Route::get('/home', function () {
     $users = User::all();
     return view('home', compact('users'));
 })->middleware(['auth', 'verified'])->name('home');
 
+Route::get('/api/staffs', [StaffController::class, 'api']);
 
 //AZAM
 Route::get('/payment', [AzamPaymentController::class, 'initiateMobileCheckout']);

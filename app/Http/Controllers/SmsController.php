@@ -10,6 +10,8 @@ class SmsController extends Controller
 {
     public function sendSms()
     {
+        $name ="Kiwy monzy";
+        $message ="Matako yako";
         $recipients = [
             [
                 'recipient_id' => (string) 1,
@@ -17,7 +19,7 @@ class SmsController extends Controller
             ]
         ];
 
-        Beem::sms('This is the message', $recipients);
+        Beem::sms('Dear '.$name.', '.$message, $recipients);
         return response()->json(['message' => 'SMS sent successfully']);
     }
 

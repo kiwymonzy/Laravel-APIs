@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            // Add other project-related fields as needed
+            $table->string('title');
             $table->timestamps();
             $table->engine = 'InnoDB';
 

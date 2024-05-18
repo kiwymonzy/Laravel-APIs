@@ -13,6 +13,12 @@ class StaffController extends Controller
         return view('staffs.index', compact('staffs'));
     }
 
+    public function api()
+    {
+        $staffs = Staff::all();
+        return $staffs;
+    }
+
     public function create()
     {
         return view('staffs.create');
